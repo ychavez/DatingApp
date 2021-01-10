@@ -1,0 +1,15 @@
+
+*.cache
+*.props
+/API/bin
+/API/obj
+*.dll
+API/obj/API.csproj.nuget.dgspec.json
+API/obj/API.csproj.nuget.g.props
+API/obj/API.csproj.nuget.g.targets
+API/obj/Debug/net5.0/API.assets.cache
+API/obj/project.assets.json
+API/obj/project.nuget.cache
+API/appsettings.Development.json
+API/appsettings.json
+
