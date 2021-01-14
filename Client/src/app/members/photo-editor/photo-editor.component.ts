@@ -74,6 +74,11 @@ this.member.photos = this.member.photos.filter(x => x.id !== photoId);
       if (Response) {
         const photo = JSON.parse(resposnse);
         this.member.photos.push(photo);
+        if(photo.isMain){
+          this.user.photoUrl = photo.url;
+          this.member.photoUrl = photo.url;
+          this.accountService.setCurrenUser(this.user);
+        }
       }
     };
   }
