@@ -18,4 +18,4 @@ namespace API.Extensions
             response.Headers.Add("Access-Control-Expose-Headers", "Pagination");
         }
     }
-}
+} 
