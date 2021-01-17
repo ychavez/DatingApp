@@ -37,12 +37,19 @@ namespace API.Data
             query = query.Where(u => u.UserName != userParams.CurrentUserName);
             query = query.Where(u => u.Gender == userParams.Gender);
 
-            var minDob = DateTime.Today.AddYears(-userParams.MaxAge -1);
+            var minDob = DateTime.Today.AddYears(-userParams.MaxAge - 1);
             var MaxDob = DateTime.Today.AddYears(-userParams.MinAge);
 
-            query = query.Where(u => u.DateOfBirth >= minDob && u.DateOfBirth<= MaxDob);
+            query = query.Where(u => u.DateOfBirth >= minDob && u.DateOfBirth <= MaxDob);
+            query = userParams.OrderBy switch
+            {
 
-            return await PagedList<MemberDTO>.CreateAsync(query.ProjectTo<MemberDTO>(mapper.ConfigurationProvider).AsNoTracking(), userParams.PageNumber, userParams.PageSize);
+                "created" => query.OrderByDescending(u => u.Created),
+                _ => query.OrderByDescending(u => u.LastActive)
+            };
+
+            return await PagedList<MemberDTO>.CreateAsync(query.ProjectTo<MemberDTO>(mapper.ConfigurationProvider).AsNoTracking(),
+             userParams.PageNumber, userParams.PageSize);
         }
 
         public async Task<IEnumerable<AppUser>> GetUserAsync() => await _context.Users.Include(p => p.Photos).ToListAsync();
