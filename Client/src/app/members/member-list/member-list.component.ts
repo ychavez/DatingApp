@@ -18,19 +18,16 @@ export class MemberListComponent implements OnInit {
   pagination: Pagination;
   userParams: UserParams;
   user: User;
-  genderList = [{value:"male",display:"Males"},{value:"female",display:"Females"}];
+  genderList = [
+    { value: 'male', display: 'Males' },
+    { value: 'female', display: 'Females' },
+  ];
 
-  constructor(
-    private memberService: MembersService,
-    private accountService: AccountService
-  ) {
-    this.accountService.currenUser$.pipe(take(1)).subscribe((user) => {
-      this.user = user;
-      this.userParams = new UserParams(user);
-    });
+  constructor(private memberService: MembersService) {
+    this.userParams = this.memberService.getUserParams();
   }
-  resetFilters(){
-    this.userParams = new UserParams(this.user);
+  resetFilters() {
+    this.userParams =this.memberService.resetUserParams();
     this.loadMembers();
   }
 
@@ -39,15 +36,14 @@ export class MemberListComponent implements OnInit {
   }
   pageChanged(event: any) {
     this.userParams.pageNumber = event.page;
+    this.memberService.setUserParams(this.userParams);
     this.loadMembers();
   }
   loadMembers() {
-    console.log(this.userParams)
-    this.memberService
-      .getMembers(this.userParams)
-      .subscribe((Response) => {
-        this.members = Response.result;
-        this.pagination = Response.pagination;
-      });
+  this.memberService.setUserParams(this.userParams);
+    this.memberService.getMembers(this.userParams).subscribe((Response) => {
+      this.members = Response.result;
+      this.pagination = Response.pagination;
+    });
   }
 }
