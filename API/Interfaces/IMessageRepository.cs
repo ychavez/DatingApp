@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using API.DTO;
 using API.Entities;
 using API.Helpers;
 
@@ -11,9 +12,9 @@ namespace API.Interfaces
         void DeleteMessage(Message message);
         Task<Message> GetMessage(int id);
 
-        Task<PagedList<MessageDTO>> GetMessagesForUser();
+        Task<PagedList<MessageDTO>> GetMessagesForUser(MessageParams messageParams);
 
-        Task<IEnumerable<MessageDTO>> GetMessageThread(int CurrentUserId, int recipientId);
+        Task<IEnumerable<MessageDTO>> GetMessageThread(string CurrentUsername, string recipientUsername);
         Task<bool> SaveAllAsync();
     }
 }
