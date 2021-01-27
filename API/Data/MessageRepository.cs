@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Data
 {
@@ -18,7 +20,7 @@ namespace API.Data
         public MessageRepository(DataContext context, IMapper mapper)
         {
             this.context = context;
-             _mapper = mapper;
+            _mapper = mapper;
         }
         public void AddMessage(Message message)
         {
@@ -27,7 +29,7 @@ namespace API.Data
 
         public void DeleteMessage(Message message)
         {
-           
+
             context.Messages.Remove(message);
         }
 
@@ -57,12 +59,37 @@ namespace API.Data
 
         }
 
-        public Task<IEnumerable<MessageDTO>> GetMessageThread(string CurrentUsername, string recipientUsername)
+        public async Task<IEnumerable<MessageDTO>> GetMessageThread(string CurrentUsername, string recipientUsername)
         {
-            throw new System.NotImplementedException();
+            var messages = await context.Messages
+            .Include(u => u.Sender).ThenInclude(p => p.Photos)
+            .Include(u => u.Recipient).ThenInclude(p => p.Photos)
+            .Where(m =>
+            m.Recipient.UserName == CurrentUsername
+            && m.Sender.UserName == recipientUsername
+            || m.Recipient.UserName == recipientUsername
+            && m.Sender.UserName == CurrentUsername
+            ).OrderBy(m => m.MessageSent).ToListAsync();
+
+            var unreadMessages = messages.Where(m => m.DateRead == null && m.Recipient.UserName == CurrentUsername).ToList();
+
+
+            if (unreadMessages.Any())
+            {
+
+                foreach (var message in unreadMessages)
+                {
+                   message.DateRead = DateTime.Now; 
+                }
+
+                await context.SaveChangesAsync();
+            }
+
+            return _mapper.Map<IEnumerable<MessageDTO>>(messages);
+
         }
 
-   
+
 
         public async Task<bool> SaveAllAsync()
         {

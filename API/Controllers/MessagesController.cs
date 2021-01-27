@@ -57,6 +57,13 @@ namespace API.Controllers
             return BadRequest("Failed to send a message");
 
         }
+        [HttpGet("thread/{username}")]
+        public async Task<ActionResult<IEnumerable<MessageDTO>>> GetMessageThread(string username)
+        {
+            var CurrentUsername = User.GetUsername();
+            return Ok(await _messageRepository.GetMessageThread(CurrentUsername, username));
+        }
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MessageDTO>>> GetMessagesForUser([FromQuery] MessageParams messageParams)
         {
