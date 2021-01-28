@@ -32,7 +32,7 @@ export class MemberDetailComponent implements OnInit {
 
   ngOnInit(): void {
    this.route.data.subscribe(data =>{
-     this.memberService = data.meber;
+     this.member = data.member;
    })
 
     this.route.queryParams.subscribe(params =>{ params.tab ? this.selectTab(params.tab):this.selectTab(0)} )
@@ -45,7 +45,7 @@ export class MemberDetailComponent implements OnInit {
         imageAnimation: NgxGalleryAnimation.Slide,
         preview: false,
       },
-    ];
+    ]
     this.galleryImages = this.getImages();
   }
 
@@ -62,7 +62,7 @@ export class MemberDetailComponent implements OnInit {
   }
 
 
- 
+
   onTabActivated(data:TabDirective){
     this.activeTab = data;
     if(this.activeTab.heading == 'Messages' && this.messages.length === 0){

@@ -5,19 +5,31 @@ import { Message } from '../_models/messages';
 import { getPaginatedResult, paginationHeaders } from './paginationHelper';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MessageService {
-baseUrl = environment.apiUrl;
+  baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getMessages(pageNumber, pageSize, container){
-    let params = paginationHeaders(pageNumber,pageSize);
-    params = params.append('container',container);
-    return getPaginatedResult<Message[]>(this.baseUrl + 'messages',params,this.http);
+  getMessages(pageNumber, pageSize, container) {
+    let params = paginationHeaders(pageNumber, pageSize);
+    params = params.append('container', container);
+    return getPaginatedResult<Message[]>(
+      this.baseUrl + 'messages',
+      params,
+      this.http
+    );
   }
-  getMessageThread(username: string){
-return this.http.get<Message[]>(this.baseUrl + 'messages/thread/'+ username);
+  getMessageThread(username: string) {
+    return this.http.get<Message[]>(
+      this.baseUrl + 'messages/thread/' + username
+    );
+  }
+  sendMessage(username: string, content: string) {
+    return this.http.post<Message>(this.baseUrl + 'messages', {
+      recipientUserName: username,
+      content,
+    });
   }
 }
