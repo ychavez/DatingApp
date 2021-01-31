@@ -33,7 +33,7 @@ namespace API.Controllers
         }
 
         // api/user
-        [Authorize(Roles="Admin")]
+       // [Authorize(Roles="Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MemberDTO>>> GetUsers([FromQuery]UserParams userParams)
         {
@@ -50,7 +50,7 @@ namespace API.Controllers
         }
 
         // api/user/3
-        [Authorize(Roles="Member")]
+      //  [Authorize(Roles="Member")]
         [HttpGet("{username}", Name = "GetUser")]
         public async Task<ActionResult<MemberDTO>> GetUser(string username) => Ok(await _repository.GetMemberAsync(username));
 
