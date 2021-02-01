@@ -33,14 +33,14 @@ namespace API.Controllers
         }
 
         // api/user
-       // [Authorize(Roles="Admin")]
+     //   [Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MemberDTO>>> GetUsers([FromQuery]UserParams userParams)
+        public async Task<ActionResult<IEnumerable<MemberDTO>>> GetUsers([FromQuery] UserParams userParams)
         {
-             var user = await _repository.GetUserByUsername(User.GetUsername());  
+            var user = await _repository.GetUserByUsername(User.GetUsername());
             userParams.CurrentUserName = User.GetUsername();
-            if(string.IsNullOrEmpty(userParams.Gender))
-                        userParams.Gender = user.Gender == "male" ? "female":"male";
+            if (string.IsNullOrEmpty(userParams.Gender))
+                userParams.Gender = user.Gender == "male" ? "female" : "male";
 
 
 
@@ -50,7 +50,7 @@ namespace API.Controllers
         }
 
         // api/user/3
-      //  [Authorize(Roles="Member")]
+        [Authorize(Roles = "Member")]
         [HttpGet("{username}", Name = "GetUser")]
         public async Task<ActionResult<MemberDTO>> GetUser(string username) => Ok(await _repository.GetMemberAsync(username));
 
