@@ -10,18 +10,17 @@ import { MessageService } from 'src/app/_services/message.service';
 })
 export class MemberMessagesComponent implements OnInit {
   @ViewChild('messagesForm') messagesForm: NgForm;
-  @Input() messages: Message[];
+  @Input() messages: Message[] = [];
   @Input() username: string;
   messageContent: string;
-  constructor(private messageService: MessageService) {}
+  constructor(public messageService: MessageService) {}
 
   ngOnInit(): void {}
 
   sendMessage() {
     this.messageService
       .sendMessage(this.username, this.messageContent)
-      .subscribe((message) => {
-        this.messages.push(message);
+      .then(() => {
         this.messagesForm.reset();
       });
   }
