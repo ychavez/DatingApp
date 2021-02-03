@@ -22,6 +22,12 @@ namespace API.Data
             this.context = context;
             _mapper = mapper;
         }
+
+        public void AddGroup(Group group)
+        {
+            context.Groups.Add(group);
+        }
+
         public void AddMessage(Message message)
         {
             context.Messages.Add(message);
@@ -33,12 +39,24 @@ namespace API.Data
             context.Messages.Remove(message);
         }
 
+        public async Task<Connection> GetConnection(string connectionId)
+        {
+            return await context.Connections.FindAsync(connectionId);
+        }
+
         public async Task<Message> GetMessage(int id)
         {
             return await context.Messages
             .Include(u => u.Sender)
             .Include(u => u.Recipient)
             .SingleOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<Group> GetMessageGroup(string groupName)
+        {
+            return await context.Groups
+            .Include(x => x.Connections)
+            .FirstOrDefaultAsync(x => x.Name == groupName);
         }
 
         public async Task<PagedList<MessageDTO>> GetMessagesForUser(MessageParams messageParams)
@@ -52,7 +70,7 @@ namespace API.Data
                 "Inbox" => query.Where(u => u.Recipient.UserName == messageParams.Username && u.RecipientDeleted == false),
                 "Outbox" => query.Where(u => u.Sender.UserName == messageParams.Username && u.SenderDeleted == false),
                 _ => query.Where(u => u.Recipient.UserName ==
-                 messageParams.Username &&  u.RecipientDeleted == false && u.DateRead == null  )
+                 messageParams.Username && u.RecipientDeleted == false && u.DateRead == null)
             };
 
             var messages = query.ProjectTo<MessageDTO>(_mapper.ConfigurationProvider);
@@ -82,7 +100,7 @@ namespace API.Data
 
                 foreach (var message in unreadMessages)
                 {
-                   message.DateRead = DateTime.Now; 
+                    message.DateRead = DateTime.UtcNow;
                 }
 
                 await context.SaveChangesAsync();
@@ -92,7 +110,10 @@ namespace API.Data
 
         }
 
-
+        public void RemoveConnection(Connection connection)
+        {
+            context.Connections.Remove(connection);
+        }
 
         public async Task<bool> SaveAllAsync()
         {

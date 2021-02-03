@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 namespace API.Data
 {
     public class DataContext : IdentityDbContext<AppUser, AppRole, int
-    , IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>, 
+    , IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>,
     IdentityRoleClaim<int>, IdentityUserToken<int>>
     {
 
@@ -18,6 +18,8 @@ namespace API.Data
 
         public DbSet<UserLike> Likes { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<Connection> Connections { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -30,11 +32,11 @@ namespace API.Data
             .HasForeignKey(ur => ur.UserId)
             .IsRequired();
 
-                builder.Entity<AppRole>()
-            .HasMany(ur => ur.UserRoles)
-            .WithOne(u => u.Role)
-            .HasForeignKey(ur => ur.RoleId)
-            .IsRequired();
+            builder.Entity<AppRole>()
+        .HasMany(ur => ur.UserRoles)
+        .WithOne(u => u.Role)
+        .HasForeignKey(ur => ur.RoleId)
+        .IsRequired();
 
             builder.Entity<UserLike>()
             .HasKey(k => new { k.SourceUserId, k.LikeduserId });
