@@ -4,6 +4,7 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { BehaviorSubject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { Group } from '../_models/group';
 import { Message } from '../_models/messages';
 import { User } from '../_models/user';
 import { getPaginatedResult, paginationHeaders } from './paginationHelper';
@@ -18,30 +19,41 @@ export class MessageService {
   private messagesThreadSource = new BehaviorSubject<Message[]>([]);
   messageThread$ = this.messagesThreadSource.asObservable();
 
-  constructor(private http: HttpClient) { }
-  
+  constructor(private http: HttpClient) {}
+
   createHubConnection(user: User, otherUsername: string) {
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(this.hubUrl + '/messages?user=' + otherUsername, {
-        accessTokenFactory: () => user.token
+        accessTokenFactory: () => user.token,
       })
       .withAutomaticReconnect()
       .build();
-    this.hubConnection.start().catch(error => console.log(error));
-    this.hubConnection.on("ReceiveMessageThread", messages =>{
+    this.hubConnection.start().catch((error) => console.log(error));
 
+    this.hubConnection.on('ReceiveMessageThread', (messages) => {
       this.messagesThreadSource.next(messages);
-   
-    } )
-    this.hubConnection.on('NewMessage',message =>{
-      this.messageThread$.pipe(take(1)).subscribe(messages =>{
-        this.messagesThreadSource.next([...messages,message])
-      })
-    })
+    });
+    this.hubConnection.on('NewMessage', (message) => {
+      this.messageThread$.pipe(take(1)).subscribe((messages) => {
+        this.messagesThreadSource.next([...messages, message]);
+      });
+    });
+    this.hubConnection.on('UpdatedGroup', (group: Group) => {
+      if (group.connections.some((x) => x.username === otherUsername)) {
+        this.messageThread$.pipe(take(1)).subscribe((messages) => {
+          messages.forEach((message) => {
+            if (!message.dateRead) {
+              message.dateRead = new Date(Date.now());
+            }
+          });
+          this.messagesThreadSource.next([...messages]);
+        });
+      }
+    });
   }
 
   stopConnection() {
-    if(this.hubConnection){
+    if (this.hubConnection) {
       this.hubConnection.stop();
     }
   }
@@ -61,13 +73,15 @@ export class MessageService {
     );
   }
   async sendMessage(username: string, content: string) {
-    return this.hubConnection.invoke('sendMessage', {
-      recipientUserName: username,
-      content,
-    }).catch(error =>console.log(error));
+    return this.hubConnection
+      .invoke('sendMessage', {
+        recipientUserName: username,
+        content,
+      })
+      .catch((error) => console.log(error));
   }
 
   deleteMessage(id: number) {
-    return this.http.delete(this.baseUrl + 'messages/' + id)
+    return this.http.delete(this.baseUrl + 'messages/' + id);
   }
 }

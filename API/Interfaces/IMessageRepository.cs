@@ -16,6 +16,7 @@ namespace API.Interfaces
         void AddMessage(Message message);
         void DeleteMessage(Message message);
         Task<Message> GetMessage(int id);
+        Task<Group> GetGroupForConnection(string connectionId);
 
         Task<PagedList<MessageDTO>> GetMessagesForUser(MessageParams messageParams);
 
